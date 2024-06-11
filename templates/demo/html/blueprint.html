@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Parking Blueprint</title>
+    <style>
+      body {
+        background-color: black;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .floor {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .box {
+        width: 150px;
+        height: 150px;
+        margin: 10px;
+        text-align: center;
+        line-height: 150px;
+        border: 1px solid #000;
+        font-weight: bold;
+        cursor: pointer;
+        border-radius: 10px; /* Adding round edges */
+        transition: all 0.3s ease; /* Adding transition for smooth animation */
+      }
+      .occupied {
+        background-color: #d9534f; /* Red shade */
+      }
+      .free {
+        background-color: #5cb85c; /* Green shade */
+      }
+      .box:hover {
+        transform: scale(1.2); /* Increase size on hover */
+        z-index: 1; /* Ensure hovered box is on top */
+      }
+      h3 {
+        background-color: black;
+      }
+    </style>
+  </head>
+  <body>
+  <h2 style="color: aliceblue">Parking Blueprint</h2>
+  {% for floor, lists in parking_slots.items %}
+    <h3 class="floor" style="color: white">Floor {{ floor }}</h3>
+    <div class="floor">
+      {% for dic in lists %}
+        {% if dic %}
+          {% if dic.status == 1 %}
+            <div class="box occupied" onclick="alert('Sorry, it\'s already occupied')">
+              {{ dic.slot }}
+            </div>
+          {% else %}
+          
+            <div class="box free" onclick="bookSlot('{{ floor }}', '{{ dic.slot }}')">
+              {{ dic.slot }}
+            </div>
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+    </div>
+  {% endfor %}
+  
+</body>
+    <script>
+      function bookSlot(floor, slot) {
+        var name = prompt("Please enter your name:");
+        var phone = prompt("Please enter your phone number:");
+
+        if (name && phone) {
+          var url =
+            "/bookslot/" +
+            encodeURIComponent(floor) +
+            "/" +
+            encodeURIComponent(slot);
+          var registerUrl =
+            "/register/?name=" +
+            encodeURIComponent(name) +
+            "&phone=" +
+            encodeURIComponent(phone) +
+            "&floor=" +
+            encodeURIComponent(floor) +
+            "&slot=" +
+            encodeURIComponent(slot);
+
+          // Send AJAX request to book the slot
+          var bookSlotRequest = new XMLHttpRequest();
+          bookSlotRequest.open("GET", url, true);
+          bookSlotRequest.send();
+
+          // Send AJAX request to register the user
+          var registerRequest = new XMLHttpRequest();
+          registerRequest.open("GET", registerUrl, true);
+          registerRequest.send();
+
+          // Display alert message indicating successful booking and registration
+          alert("Booking successful");
+        }
+      }
+
+      window.onload = function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const message = urlParams.get("message");
+        if (message) {
+          alert(message);
+        }
+      };
+    </script>
+  </body>
+</html>
